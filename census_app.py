@@ -1,26 +1,34 @@
+import time
+import os                                                                                                                                                                        
+from os.path import join, dirname                                                                                                                                                
+from dotenv import load_dotenv
 from census import Census
 from us import states
 
-c = Census("key")
+
+dotenv_path = join(dirname(__file__), '.env')                                                                                                                                    
+load_dotenv(dotenv_path)
+
+c = Census(os.getenv('CENSUS_KEY'))
 
 # States 
 # https://www.nrcs.usda.gov/wps/portal/nrcs/detail/?cid=nrcs143_013696
+print(states.lookup('34').abbr)
 
-# Age
+# Total Population
 # Decennial Census SF1 (2010, 2000)
 # https://www.census.gov/data/developers/data-sets/decennial-census.html
 # https://api.census.gov/data/2010/dec/sf1/variables.html
 # https://api.census.gov/data/2010/dec/sf1/geography.html
-male_35_39_years = c.sf1.get('P002003', {'for': 'state:34'})
-print(states.lookup('34').abbr)
-print(male_35_39_years)
+sf1_variables = ['P001001', 'P002002', 'P002003', 'P002004', 'P002005', 'P002006']
+for sf1_variable in sf1_variables:
+    result = c.sf1.get(sf1_variable, {'for': 'state:34'})
+    print(result)
+    time.sleep(5)
 
-
-# Gender
-# https://api.census.gov/data/2016/acs/acs5/variables.html
-#male_5to9_years = c.acs5.get('B01001_004E', {'for': 'state:34'})
-#print(male_5to9_years)                                                                                                                                                            
-
+# HISPANIC OR LATINO BY SPECIFIC ORIGIN	
+result = c.sf1.get('PCT011025', {'for': 'state:34'})
+print(result)
 
 
 # How to get state based on FIPS code
